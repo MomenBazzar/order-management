@@ -1,7 +1,6 @@
 package com.momenbazzar.order.service;
 
 import com.momenbazzar.order.exception.NotFoundException;
-import com.momenbazzar.order.model.Order;
 import com.momenbazzar.order.model.Product;
 import com.momenbazzar.order.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;

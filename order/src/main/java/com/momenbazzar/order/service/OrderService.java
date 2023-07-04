@@ -1,11 +1,11 @@
 package com.momenbazzar.order.service;
 
-import com.momenbazzar.order.dto.ProductOrderAddDTO;
 import com.momenbazzar.order.exception.NotFoundException;
 import com.momenbazzar.order.model.*;
 import com.momenbazzar.order.repository.CustomerRepository;
 import com.momenbazzar.order.repository.OrderRepository;
 import com.momenbazzar.order.repository.ProductOrderRepository;
+import com.momenbazzar.order.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,34 +18,27 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ProductOrderRepository productOrderRepository;
-    private final ProductService productService;
+    private final ProductRepository productRepository;
 
     @Autowired
     public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository,
-                        ProductOrderRepository productOrderRepository, ProductService productService) {
+                        ProductOrderRepository productOrderRepository, ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productOrderRepository = productOrderRepository;
-        this.productService = productService;
+        this.productRepository = productRepository;
     }
 
     public Order getOrderById(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + orderId));
     }
-    
-    public void deleteOrderById(Long orderId) {
-        if (!orderRepository.existsById(orderId)) {
-            throw new NotFoundException("Order not found with ID: " + orderId);
-        }
-        orderRepository.deleteById(orderId);
-    }
 
-    public List<Product> getProductsByOrderId(Long orderId) {
+    public List<ProductOrder> getProductsByOrderId(Long orderId) {
         if (!orderRepository.existsById(orderId)) {
             throw new NotFoundException("Order not found with ID: " + orderId);
         }
-        return orderRepository.findProductsByOrderId(orderId);
+        return productOrderRepository.findAllProductOrdersByOrderId(orderId);
     }
 
     public Order createOrder(Long customerId) {
@@ -58,5 +51,24 @@ public class OrderService {
         orderRepository.save(order);
 
         return order;
+    }
+
+    public ProductOrder addProductToOrder(Long orderId,Long productId, int quantity) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found"));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+        
+        // Create a new ProductOrder
+        ProductOrder productOrder = new ProductOrder();
+        productOrder.setOrder(order);
+        productOrder.setProduct(product);
+        productOrder.setQuantity(quantity);
+        productOrder.setPrice(product.getPrice());
+        productOrder.setVat(product.getVat());
+
+        // Save the ProductOrder
+        return productOrderRepository.save(productOrder);
     }
 }
