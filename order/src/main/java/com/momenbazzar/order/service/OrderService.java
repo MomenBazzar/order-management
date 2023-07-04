@@ -53,15 +53,21 @@ public class OrderService {
         return order;
     }
 
-    public ProductOrder addProductToOrder(Long orderId,Long productId, int quantity) {
+    public ProductOrder addProductToOrder(Long orderId, Long productId, int quantity) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
+        // Create a new OrderProductId
+        OrderProductId orderProductId = new OrderProductId();
+        orderProductId.setOrderId(orderId);
+        orderProductId.setProductId(productId);
+
         // Create a new ProductOrder
         ProductOrder productOrder = new ProductOrder();
+        productOrder.setId(orderProductId);
         productOrder.setOrder(order);
         productOrder.setProduct(product);
         productOrder.setQuantity(quantity);
@@ -71,4 +77,5 @@ public class OrderService {
         // Save the ProductOrder
         return productOrderRepository.save(productOrder);
     }
+
 }

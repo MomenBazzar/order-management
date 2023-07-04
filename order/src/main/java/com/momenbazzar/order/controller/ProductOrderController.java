@@ -31,18 +31,16 @@ public class ProductOrderController {
 
         // Map the list of ProductOrder entities to a list of ProductOrderDTOs
         Type listType = new TypeToken<List<ProductOrderDTO>>() {}.getType();
-        List<ProductOrderDTO> productOrderDTOs = modelMapper.map(productOrders, listType);
 
-        return productOrderDTOs;
+        return modelMapper.map(productOrders, listType);
     }
 
     @PostMapping
     public ResponseEntity<ProductOrderDTO> addProductToOrder(
-            @PathVariable Long customerId,
             @PathVariable Long orderId,
             @RequestBody ProductOrderAddDTO productOrderDTO) {
         int quantity = productOrderDTO.getQuantity();
-        Long productId = productOrderDTO.getProduct().getId();
+        Long productId = productOrderDTO.getProductId();
         ProductOrder addedProductOrder = orderService.addProductToOrder(orderId, productId, quantity);
         ProductOrderDTO addedProductOrderDTO = modelMapper.map(addedProductOrder, ProductOrderDTO.class);
         return ResponseEntity.status(HttpStatus.CREATED).body(addedProductOrderDTO);
