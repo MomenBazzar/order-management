@@ -59,14 +59,14 @@ public class OrderService {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
-        
+
         // Create a new ProductOrder
         ProductOrder productOrder = new ProductOrder();
         productOrder.setOrder(order);
         productOrder.setProduct(product);
         productOrder.setQuantity(quantity);
-        productOrder.setPrice(product.getPrice());
-        productOrder.setVat(product.getVat());
+        productOrder.setPrice(product.getPrice() * quantity);
+        productOrder.setVat(product.getVat() * quantity);
 
         // Save the ProductOrder
         return productOrderRepository.save(productOrder);
